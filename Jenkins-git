@@ -12,6 +12,18 @@ pipeline {
          stage('maven') {
             steps {
                 sh 'mvn clean package'
+                sh 'mv target/*.war target/myweb.war' 
+            }
+        }
+         stage('deploy') {
+            steps {
+                sshagent(['tomcat1']) {
+                   sh """
+                    scp -o StrictHostKeyChecking=no target/myweb.war admin@localhost:/Users/rahul.nautiyal/Downloads/apache-tomcat-9.0.78/webapps/
+                    ssh admin@localhost /Users/rahul.nautiyal/Downloads/apache-tomcat-9.0.78/bin/shutdown.sh
+                    ssh admin@localhost /Users/rahul.nautiyal/Downloads/apache-tomcat-9.0.78/bin/startup.sh
+                """
+            }
             }
         }
     }
